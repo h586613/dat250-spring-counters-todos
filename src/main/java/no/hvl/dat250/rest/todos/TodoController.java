@@ -28,13 +28,13 @@ public class TodoController {
   }
 
   @GetMapping("/todos/{id}")
-  public ResponseEntity<?> getTodo(@PathVariable long id) {
+  public Todo getTodo(@PathVariable Long id) {
     for (Todo t : TodoController.todos) {
       if (t.getId() == id) {
-        return ResponseEntity.ok(t);
+        return t;
       }
     }
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("message: " + String.format(TODO_WITH_THE_ID_X_NOT_FOUND, id));
+    throw new RuntimeException(TODO_WITH_THE_ID_X_NOT_FOUND.formatted(id));
   }
 
   @PutMapping("/todos/{id}")
@@ -65,12 +65,17 @@ public class TodoController {
 
   @DeleteMapping("/todos/{id}")
   public void deleteTodo(@PathVariable long id) {
+    long l = todos.size();
     TodoController.todos = TodoController.todos
             .stream()
             .filter(
                     t -> t.getId() != id
             )
             .collect(Collectors.toList());
+    if (todos.size() == l) {
+      throw new RuntimeException(TODO_WITH_THE_ID_X_NOT_FOUND.formatted(id));
+    }
+
   }
 
   /**
